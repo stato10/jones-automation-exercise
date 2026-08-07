@@ -1,0 +1,175 @@
+Jones Automation Exercise - Follow-up Questions
+================================================
+
+These answers are for the "Account Information" billing UI mock-up
+(global SaaS company payment / billing screen).
+
+
+------------------------------------------------------------
+QUESTION A
+Test this UI mock-up. Can you find any problems with this screen?
+(Security, Usability, Performance, etc.)
+------------------------------------------------------------
+
+Yes. Main problems found:
+
+1) Missing currency (MOST SEVERE)
+   - The amount shows only "30.00".
+   - For a global SaaS product, the customer cannot know if this is
+     USD, EUR, GBP, or another currency.
+   - Why it matters: wrong expectations, charge disputes, refunds,
+     and loss of trust.
+
+2) Unclear payment action
+   - The button says "Continue".
+   - It is not clear if this charges the card, saves details, or
+     goes to another step.
+   - Why it matters: users may get charged without understanding what
+     they confirmed.
+
+3) Security / PCI risk
+   - The form collects the full card number on this screen.
+   - Card data must be handled by a PCI-compliant payment provider
+     (tokenization), never stored/logged by the SaaS app, and sent
+     only over HTTPS.
+   - Why it matters: mishandling card data can cause fraud and
+     compliance failures.
+
+4) No CVV field
+   - There is no CVV / security code input.
+   - Why it matters: weaker fraud protection (unless another
+     verification method is used).
+
+5) Not ready for international users
+   - There is a "State or Province" dropdown and no country selector.
+   - Many countries do not use US-style states.
+   - Why it matters: international customers cannot complete billing
+     correctly.
+
+6) Bad usability / formatting rules
+   - Card number: "no dashes or spaces"
+   - Postal code: "no dashes"
+   - Why it matters: users normally type with spaces/dashes. The app
+     should accept normal input and clean it automatically.
+
+7) Manual Card Type selection
+   - User selects VISA manually, but brand can be detected from the
+     card number.
+   - Why it matters: user can select the wrong brand and cause
+     validation/payment errors.
+
+8) Accessibility and clarity issues
+   - Required fields use red asterisks only.
+   - Second address line has no clear label (apartment/suite).
+   - "MI" is unclear and not marked as optional.
+   - Why it matters: harder for some users, including screen-reader
+     and color-blind users.
+
+9) Missing billing context
+   - No plan name, billing period, tax, discount, or total due today.
+   - Why it matters: user cannot verify what they are paying for.
+
+10) Performance / reliability risks to check in real product
+   - Payment scripts should not freeze the page.
+   - After click, there should be a loading state.
+   - Double-click should not create two charges.
+
+
+------------------------------------------------------------
+QUESTION B
+Can you write 2-3 sample test cases for this functionality?
+------------------------------------------------------------
+
+TEST CASE 1 - Successful payment (happy path)
+---------------------------------------------
+Goal: Verify a valid payment completes correctly.
+
+Preconditions:
+- Sandbox/test payment gateway is enabled.
+- Plan price is USD 30.00.
+
+Steps:
+1. Open the Account Information / payment page.
+2. Confirm currency and amount are shown clearly (example: USD 30.00).
+3. Enter a valid sandbox card number, expiration date, and CVV.
+4. Enter valid cardholder name and billing address.
+5. Click the final payment button (example: "Pay USD 30.00").
+
+Expected result:
+- Payment is authorized once.
+- User sees a success/confirmation page with a transaction reference.
+- Charged amount and currency match the summary.
+- Raw card data is not stored in application logs.
+
+
+TEST CASE 2 - Invalid input validation
+--------------------------------------
+Goal: Verify the form blocks bad data and shows clear errors.
+
+Steps:
+1. Enter an invalid card number.
+2. Select an expired date.
+3. Enter an invalid postal code.
+4. Click Continue / Pay.
+5. Fix the errors and submit again.
+
+Expected result:
+- Form does not send a payment request for clearly invalid data.
+- Each field shows a clear error message.
+- Valid fields are not cleared.
+- After correcting data, payment can succeed.
+
+
+TEST CASE 3 - Double click / timeout protection
+-----------------------------------------------
+Goal: Prevent duplicate charges.
+
+Steps:
+1. Enter valid payment details.
+2. Click the payment button twice quickly.
+3. Simulate a slow network or timeout.
+4. Retry once after the timeout message.
+
+Expected result:
+- Button shows a processing/disabled state.
+- Only one payment request/charge is created.
+- User gets a clear success or recoverable error message.
+
+
+------------------------------------------------------------
+QUESTION C
+Can you suggest a product solution for the most severe bug
+you've found?
+------------------------------------------------------------
+
+Most severe bug:
+Missing currency on the payment amount for a global SaaS product.
+
+Product solution:
+1. Replace "Payment Amount 30.00" with a clear order summary:
+   - Product / plan name
+   - Billing period
+   - Subtotal, tax, discount
+   - Total due today
+   - Currency code, for example: "USD 30.00"
+
+2. Change the button text from "Continue" to an explicit action:
+   - Example: "Pay USD 30.00"
+   - Or: "Start subscription - USD 30.00/month"
+
+3. Keep price and currency controlled by the server
+   (do not trust client-side values).
+
+4. Use a PCI-compliant payment provider with tokenization
+   (hosted card fields), and prevent duplicate charges with
+   idempotency keys.
+
+Why this is the best fix:
+It removes billing ambiguity for global customers, reduces disputes,
+improves trust, and makes the payment action legally/clearly
+understandable.
+
+
+------------------------------------------------------------
+End of answers
+------------------------------------------------------------
