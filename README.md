@@ -1,6 +1,12 @@
 # Jones Automation Exercise
 
-Playwright automation submission for the Junior Automation Engineer exercise.
+**An end-to-end Playwright test for a lead form, plus a structured QA review of a billing UI.**
+
+![Playwright](https://img.shields.io/badge/Playwright-2EAD33?logo=playwright&logoColor=white) ![Node.js](https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white)
+
+Written as the submission for a Junior Automation Engineer exercise.
+
+<p align="center"><img src="artifacts/before-submit.png" alt="The form filled in by the script, captured before submit" width="720"></p>
 
 ## Overview
 
